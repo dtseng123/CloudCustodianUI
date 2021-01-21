@@ -11,9 +11,9 @@
         selected: null,
         options: [
           { value: null, text: 'Please select an option' },
-          { value: 'AWS', text: 'Amazon Web Services' },
-          { value: 'GCP', text: 'Google Cloud Platform' },
-           { value:'AZU', text: 'Microsoft Azure Cloud' }
+          { value: 'Amazon Web Services', text: 'Amazon Web Services' },
+          { value: 'Google Cloud Platform', text: 'Google Cloud Platform' },
+          { value:'Microsoft Azure Cloud', text: 'Microsoft Azure Cloud' }
         ]
       }
     },

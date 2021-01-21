@@ -34,6 +34,7 @@ lazy-object-proxy==1.4.3
 Mako==1.1.4
 MarkupSafe==1.1.1
 marshmallow==3.10.0
+marshmallow-enum==1.5.1
 marshmallow-sqlalchemy==0.24.1
 mccabe==0.6.1
 parso==0.8.1

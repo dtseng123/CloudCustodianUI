@@ -1,10 +1,8 @@
  
-from custodian_ui import policy
-from custodian_ui.extensions import csrf_protect
+# from custodian_ui import policy
 
-base_url = '/api'
+# base_url = '/api'
 
-def register_api(app):
-    app.register_blueprint(policy.views.blueprint,
-                           url_prefix='{}/policy'.format(base_url))
-    csrf_protect.exempt(policy.views.blueprint)
+# def register_api(app):
+#     app.register_blueprint(policy.views.blueprint,
+#                            url_prefix='{}/policy'.format(base_url))
