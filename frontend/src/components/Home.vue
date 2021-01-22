@@ -68,18 +68,18 @@
         <b-col v-for="policy in policyList" v-bind:key="policy.id">
             <b-card
               :title="policy.name"
-              img-src="https://loremflickr.com/600/300/landscape"
+              img-src="https://picsum.photos/600/300"
               img-alt="Image"
               img-top
               tag="article"
-              style="max-width: 20rem;"
-              class="mb-2"
+              style="max-width: 20rem; min-width:350px;"
+              class="mb-4"
             >
               <b-card-text>
                  {{policy.description}}
               </b-card-text>
 
-              <b-button href="#" variant="primary">Enact Policy</b-button>
+              <b-button href="#" variant="outline-primary" size="sm">Enact Policy</b-button>
             </b-card>
         </b-col>
         

@@ -15,14 +15,6 @@ import requests
 from app import *
 
 
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def catch_all(path):
-#     if app.debug:
-#         return requests.get('http://localhost:8080/{}'.format(path)).text
-#     return render_template("index.html")
-
-
 
 class Fixtures(Command):
     """Generate fixtures for application models."""
