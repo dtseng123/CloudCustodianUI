@@ -6,11 +6,9 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Command, Manager, Option, Server, Shell
 from flask_script.commands import Clean, ShowUrls
 from flask_cors import CORS, cross_origin
-
 from custodian_ui.app import create_app
 from custodian_ui.database import db
 from custodian_ui.settings import DevConfig
- 
 import requests
 from app import *
 

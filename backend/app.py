@@ -2,6 +2,8 @@
 import os
 from flask import Flask, render_template, request, jsonify, make_response
 from random import *
+from time import sleep
+from subprocess import Popen, PIPE, STDOUT, run, check_output
 import subprocess
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Command, Manager, Option, Server, Shell
@@ -31,8 +33,8 @@ def catch_all(path):
 
 @app.route('/api/custodian', methods=['GET'])
 def custodian_help():
-    process = subprocess.run(['custodian', '-h'],
-        stdout=subprocess.PIPE,
+    process = run(['custodian', '-h'],
+        stdout=PIPE,
         universal_newlines=True)
 
     response = {
@@ -40,6 +42,36 @@ def custodian_help():
     }
     return jsonify(response)
 
+@app.route('/api/validate', methods=['POST'])
+def validate_policy():
+    script =  request.json['data']
+
+    # Clear file first
+    open('cloudScript.yml', 'w').close()
+
+    # open, write script to file and close
+    with open('cloudScript.yml', 'w') as outfile:
+        outfile.write(script) 
+
+    cmd = 'custodian validate cloudScript.yml'
+    try:
+        cmd_stdout = check_output(cmd, stderr=STDOUT, shell=True).decode()
+        print(cmd_stdout)
+        response = { 
+          "valid":True,
+          'output':cmd_stdout # return valid statement
+        }
+    except Exception as e:
+        response = { 
+          "valid":False,
+          'output':e.output.decode()   # return error statement
+        }
+ 
+    print(response)
+
+    return jsonify(response)
+
+ 
 @app.route('/api/policy', methods=['POST'])
 def policy_make():
     print(request.json)
@@ -47,7 +79,6 @@ def policy_make():
         
     if model:
         model.save()
-        # import pdb; pdb.set_trace()
         resp = policyschema.jsonify(model)
         resp.status_code = 201
         print(resp)
@@ -115,6 +146,8 @@ def policy_delete(id):
 
 @app.after_request
 def after_request_func(response):
+    """Deal with CORS"""
+
     origin = request.headers.get('Origin')
     if request.method == 'OPTIONS':
         response = make_response()
