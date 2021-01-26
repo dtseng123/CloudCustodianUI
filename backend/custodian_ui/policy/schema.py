@@ -7,7 +7,6 @@ class PolicySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Policy
         load_instance = True
-        exclude = ('id',)
  
 
 policyschema = PolicySchema()

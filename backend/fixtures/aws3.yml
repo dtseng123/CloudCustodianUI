@@ -1,0 +1,9 @@
+policies:
+  - name: account-service-limits
+    resource: account
+    filters:
+      - type: service-limit
+        threshold: 50
+    actions:
+      - type: request-limit-increase
+        percent-increase: 25

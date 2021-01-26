@@ -79,8 +79,8 @@
               @click="cancelCreate"
             >Cancel</b-button>
             <b-button
-              v-bind:variant="[valid.valid ? 'success' : 'danger']"
-              :disabled="!valid.valid"
+              v-bind:variant="[!validateForm ? 'success' : 'danger']"
+              :disabled="!validateForm"
               @click="save"
               >Save policy</b-button
             >
@@ -106,6 +106,7 @@ export default {
       selected: undefined,
       sideBarVis: false,
       valid: "",
+      
       policyName: "",
       policyDesc: "",
       policyCloud: "",
@@ -134,13 +135,27 @@ export default {
           console.log(error);
         });
     },
+    validateForm(){
+      if(
+        this.policyName!== "" &&
+        this.policyDesc!== "" &&
+        this.policyCloud!== "" &&
+        this.valid.valid === true 
+      ){
+        return true
+      }
+      else{
+        return false
+      }
+
+    },
     save() {
       this.policy = this.savePolicy();
     },
     onCloudSelect(value) {
       this.policyCloud = value;
     },
-    savePolicy() {
+    async savePolicy() {
       const path = "http://localhost:5000/api/policy";
       const data = {
         name: this.policyName,
@@ -148,7 +163,7 @@ export default {
         cloud: this.policyCloud,
         yaml: this.policyScript
       };
-      axios
+      await axios
         .post(path, data)
         .then(response => {
           console.log(response.data);
@@ -158,6 +173,7 @@ export default {
             variant: "success"
           });
           this.sideBarVis = false;
+          this.$emit("savedSuccess")
         })
         .catch(error => {
           console.log(error);

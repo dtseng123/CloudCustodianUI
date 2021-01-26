@@ -45,31 +45,8 @@ def custodian_help():
 @app.route('/api/validate', methods=['POST'])
 def validate_policy():
     script =  request.json['data']
-
-    # Clear file first
-    open('cloudScript.yml', 'w').close()
-
-    # open, write script to file and close
-    with open('cloudScript.yml', 'w') as outfile:
-        outfile.write(script) 
-
-    cmd = 'custodian validate cloudScript.yml'
-    try:
-        cmd_stdout = check_output(cmd, stderr=STDOUT, shell=True).decode()
-        print(cmd_stdout)
-        response = { 
-          "valid":True,
-          'output':cmd_stdout # return valid statement
-        }
-    except Exception as e:
-        response = { 
-          "valid":False,
-          'output':e.output.decode()   # return error statement
-        }
- 
-    print(response)
-
-    return jsonify(response)
+    res = commandline_request('custodian validate cloudScript.yml', script)
+    return res
 
  
 @app.route('/api/policy', methods=['POST'])
@@ -94,54 +71,45 @@ def policies_all():
     
     return resp
 
-@app.route('/api/policy/<int:idx>', methods=['PUT', "OPTIONS"])
-def policy_put(idx):
-    if request.method == 'OPTIONS': 
-        return build_preflight_response()
+@app.route('/api/policy/deploy/<int:id>', methods=['POST', 'OPTIONS'])
+def deploy_policy(id):
     
-    elif request.method == 'PUT':
-        model, errors = policyschema.load(request.json)
+    model = Policy.query.filter_by(id=id).first_or_404()
+    fields = policyschema.dump(model)
+    script = fields['yaml']
 
-        if errors:
-            resp = jsonify(errors)
-            resp.status_code = 400
-            return resp
+    # Construct command
+    cloud_options = {"Amazon Web Services": "aws",  "Google Cloud Platform": "gcp", "Microsoft Azure Cloud": "azure"}
+    cloud = cloud_options[fields['cloud']]  
+    cmd = f"custodian run -s output -m {cloud} cloudScript.yml"
+    
+    res = commandline_request(cmd, script) 
+    
+    return res
+ 
 
-        policy = Policy.query.filter_by(idx=idx).first_or_404()
-        fields = policyschema.dump(model).data
-        # Explicitly delete fields user is not supposed to update
-        del fields['idx']
-        policy.update(**fields)
-        
-        data =  policyschema.jsonify(policy)
-        return build_actual_response(jsonify(data))
-
-
-
-@app.route('/api/policy/<int:idx>', methods=['GET', "OPTIONS"])
-def policy_get(idx):
-    if request.method == 'OPTIONS': 
-        return build_preflight_response()
-    elif request.method == 'GET':
-
-        policy = Policy.query.filter_by(idx=idx).first_or_404()
-        data = policyschema.jsonify(policy)
-
-        return build_actual_response(jsonify(data))
-
-
-@app.route('/api/policy/<int:idx>', methods=['DELETE'])
+@app.route('/api/policy/<int:id>', methods=['DELETE', 'OPTIONS'])
 def policy_delete(id):
-    if request.method == 'OPTIONS': 
-        return build_preflight_response()
-    elif request.method == 'DELETE':
+    model = Policy.query.filter_by(id=id).first_or_404() 
+    model.delete()
+    resp = make_response(jsonify({}), 204)
+    return resp
+  
 
-        model = Policy.query.filter_by(id=id).first_or_404()
-        model.delete()
-        return ('', 200)
+@app.route('/api/policy/<int:id>', methods=['PUT', 'OPTIONS'])
+def policy_put(id):    
     
+    model = policyschema.load(request.json)
 
+    policy = Policy.query.filter_by(id=id).first_or_404()
+    fields = policyschema.dump(model).data
 
+    # Explicitly delete fields user is not supposed to update
+    del fields['id']
+    policy.update(**fields)
+    data = policyschema.jsonify(policy)
+    resp = make_response(policyschema.jsonify(policy), 200) 
+    return  resp
 
 
 @app.after_request
@@ -162,5 +130,27 @@ def after_request_func(response):
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         if origin:
             response.headers.add('Access-Control-Allow-Origin', origin)
-
     return response
+
+def commandline_request(command="custodian -h", script=""):
+    open('cloudScript.yml', 'w').close()
+
+    # open, write script to file and close
+    with open('cloudScript.yml', 'w') as outfile:
+        outfile.write(script) 
+    
+    try:
+        cmd_stdout = check_output(command, stderr=STDOUT, shell=True).decode()
+        print(cmd_stdout)
+        response = { 
+          "valid":True,
+          'output':cmd_stdout # return valid statement
+        }
+    except Exception as e:
+        response = { 
+          "valid":False,
+          'output':e.output.decode()   # return error statement
+        }
+ 
+    print(response)
+    return jsonify(response)

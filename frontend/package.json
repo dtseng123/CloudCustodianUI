@@ -17,7 +17,8 @@
     "monaco-editor-vue": "^1.0.10",
     "monaco-editor-webpack-plugin": "^2.1.0",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue-terminal": "^1.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

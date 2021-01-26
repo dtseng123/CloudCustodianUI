@@ -9,6 +9,7 @@ from flask_cors import CORS, cross_origin
 from custodian_ui.app import create_app
 from custodian_ui.database import db
 from custodian_ui.settings import DevConfig
+from custodian_ui.fixtures import generate
 import requests
 from app import *
 
@@ -17,8 +18,9 @@ from app import *
 class Fixtures(Command):
     """Generate fixtures for application models."""
 
-    def run(self, rpc):
+    def run(self):
         print("Generating Fixtures")
+        generate()
          
 server = Server(host="0.0.0.0", port=5000, use_reloader=True)
 

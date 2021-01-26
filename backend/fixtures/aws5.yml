@@ -1,0 +1,23 @@
+policies:
+  - name: asg-invalid-configuration
+    resource: asg
+    filters:
+      - invalid
+    actions:
+      - type: notify
+        template: default.html
+        priority_header: 1
+        subject: "ASG-Invalid Config-[custodian {{ account }} - {{ region }}]"
+        violation_desc: |
+            "New ASG instances may fail to launch or scale! The following Autoscaling
+            Groups have invalid AMIs, SGs, KeyPairs, Launch Configs, or Health Checks"
+        action_desc: |
+            "Actions Taken:  Notification Only. Please investigate and fix your ASGs
+            configuration to prevent you from having any outages or issues"
+        to:
+           - CloudAdmins@Company.com
+           - resource-owner
+        transport:
+           type: sqs
+           queue: https://sqs.us-east-1.amazonaws.com/12345678900/cloud-custodian-mailer
+           region: us-east-1
