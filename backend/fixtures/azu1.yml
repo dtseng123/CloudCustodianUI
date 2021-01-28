@@ -1,0 +1,11 @@
+policies:
+  - name: find-busy-vms
+    description: Find VMs with avg cpu >= 75% over the last 12 hours
+    resource: azure.vm
+    filters:
+      - type: metric
+        metric: Percentage CPU
+        aggregation: average
+        op: ge
+        threshold: 75
+        timeframe: 12

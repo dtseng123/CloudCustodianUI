@@ -17,10 +17,14 @@ from app import *
 
 class Fixtures(Command):
     """Generate fixtures for application models."""
+    option_list = (
+        Option('--cloud', '-c', dest='cloud', required=True, choices=["aws", "gcloud", "azure"]),
+    )
 
-    def run(self):
-        print("Generating Fixtures")
-        generate()
+    def run(self, cloud):
+        print("Generating Fixtures for")
+        print(cloud)
+        generate(cloud=cloud)
          
 server = Server(host="0.0.0.0", port=5000, use_reloader=True)
 

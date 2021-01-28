@@ -23,7 +23,7 @@ app = create_app(DevConfig)
 manager = Manager(app)
 migrate = Migrate(app, db)
 
-
+# Not Found Path
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
@@ -90,10 +90,13 @@ def deploy_policy(id):
 
 @app.route('/api/policy/<int:id>', methods=['DELETE', 'OPTIONS'])
 def policy_delete(id):
-    model = Policy.query.filter_by(id=id).first_or_404() 
-    model.delete()
-    resp = make_response(jsonify({}), 204)
-    return resp
+    if request.method == 'DELETE':
+      model = Policy.query.filter_by(id=id).first_or_404() 
+      model.delete()
+      resp = make_response(jsonify({}), 204)
+      return resp
+    else:
+      return make_response(jsonify({}), 200)
   
 
 @app.route('/api/policy/<int:id>', methods=['PUT', 'OPTIONS'])
@@ -133,7 +136,10 @@ def after_request_func(response):
     return response
 
 def commandline_request(command="custodian -h", script=""):
-    open('cloudScript.yml', 'w').close()
+    # resets file to empty
+    f = open('cloudScript.yml', 'r+')
+    f.truncate(0) # need '0' when using r+
+    f.close()
 
     # open, write script to file and close
     with open('cloudScript.yml', 'w') as outfile:

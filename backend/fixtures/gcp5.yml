@@ -1,0 +1,12 @@
+policies:
+  - name: expired-deployments
+    description: Finds expired deployments
+    resource: gcp.dm-deployment
+    filters:
+    - type: value
+      key: insertTime
+      value_type: expiration
+      op: gte
+      value: 7
+    actions:
+      - delete

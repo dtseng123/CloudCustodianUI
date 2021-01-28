@@ -1,0 +1,20 @@
+policies:
+  - name: gcp-dataflow-jobs-update
+    resource: gcp.dataflow-job
+    filters:
+      - type: value
+        key: startTime
+        op: greater-than
+        value_type: age
+        value: 1
+      - type: value
+        key: currentState
+        value: [JOB_STATE_RUNNING, JOB_STATE_DRAINING, JOB_STATE_CANCELLING]
+    actions:
+      - type: notify
+        to:
+          - email@address
+        format: json
+        transport:
+          type: pubsub
+          topic: projects/cloud-custodian/topics/dataflow
